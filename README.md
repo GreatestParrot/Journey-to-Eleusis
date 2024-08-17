@@ -1,6 +1,6 @@
 # Journey-to-Eleusis
 
-This repo contains Jupyter Notebooks and scripts for research on moral basis of LLM. 
+This repo contains Jupyter Notebooks and scripts for research on moral bias of LLM. 
 Script for scenarios generation and postprocessing are taken (or heavily based) on [code](https://github.com/kztakemoto/mmllm) and [research](https://doi.org/10.1098/rsos.231393) of Kazuhiro Takemoto.
 
 ## Usage

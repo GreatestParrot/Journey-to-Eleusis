@@ -1,44 +1,42 @@
 import pandas as pd
-import re
 
 
-INPUT_NAME = "./pickles/eng_words_for_digits_response_lmstudio_communityPhi_3_1_mini_4k.pickle"
-OUTPUT_NAME = "eng_words_for_digits_response_lmstudio_communityPhi_3_1_mini_4k.csv"
+INPUT_NAME = "./pickles/ge_words_for_digits_results_yandex_gpt_9999.pickle"
+OUTPUT_NAME = "ge_words_for_digits_results_yandex_gpt_9999.csv"
 
 df = pd.read_pickle(INPUT_NAME)
-print(df)
-keywords = ["Case 1", "Case 2"]
+
+keywords = ["Fall 1", "Fall 2"]
 
 def response_classification(query):
+  label_seq = []
+  if not query:
+    return -1
   text = query.lower()
-
-  pattern_case1 = re.compile(r"case\s?1")
-  pattern_case2 = re.compile(r"case\s?2")
-
-  match_case1 = pattern_case1.search(text) is not None
-  match_case2 = pattern_case2.search(text) is not None
-
-  if match_case1 and not match_case2:
-      label = 0
-  elif not match_case1 and match_case2:
-      label = 1
+  for key in keywords:
+    if key.lower() in text:
+      label_seq.append(1)
+    else:
+      label_seq.append(0)
+  
+  if label_seq == [1,0]:
+    label = 0
+  elif label_seq == [0,1]:
+    label = 1
   else:
-      label = -1
+    label = -1
 
   return label
 
 df['label'] = df['response'].apply(str).apply(response_classification)
 
-print(df)
 df = df[df["label"] >=0].reset_index(drop=True)
-print(df)
-#df = df.sample(n = 5000) # for debug
 
 # conver the data into data format for conjoint analysis
 CrossingSignal_dict = {
   "NA": 0,
   "green": 1,
-  "red": 2,
+  "red": 2, 
 }
 
 ScenarioType_dict = {
@@ -52,62 +50,49 @@ ScenarioType_dict = {
 }
 
 AttributeLevel_dict = {
-  "species": {
-    "human": "Hoomans",
-    "pet": "Pets",
+    'species': {"Mensch": "Hoomans", "Haustier": "Pets"},
+    'social_value': {"niedriger": "Low", "höher": "High"},
+    'gender': {"weiblich": "Female", "männlich": "Male"},
+    'age': {"jünger": "Young", "älter": "Old"},
+    'fitness': {"niedriger": "Fat", "höher": "Fit"},
+    'utilitarianism': {"weniger": "Less", "mehr": "More"},
+    "random": {
+    "random": "zufällig",
   },
-  "social_value": {
-    "lower": "Low",
-    "higher": "High",
-  },
-  "gender": {
-    "female": "Female",
-    "male": "Male",
-  },
-  "age": {
-    "younger": "Young",
-    "older": "Old",
-  },
-  "fitness": {
-    "lower": "Fat",
-    "higher": "Fit",
-  },
-  "utilitarianism": {
-    "less": "Less",
-    "more": "More",
-  },
-  "random": {
-    "random": "Rand",
-  }
+
 }
 
-characters = ["man", "woman", "pregnant woman", "baby", "elderly man", "elderly woman", "boy", "girl", "homeless person", "large woman", "large man", "criminal", "male executive", "female executive", "female athlete", "male athlete", "female doctor", "male doctor", "dog", "cat"]
+characters = ["Mann", "Frau", "schwangere Frau", "Baby", "älterer Mann", "ältere Frau", "Junge", "Mädchen",
+          "obdachlose Person", "übergewichtige Frau", "übergewichtiger Mann", "Krimineller",
+          "männlicher Geschäftsführer", "weibliche Geschäftsführerin", "weibliche Sportlerin",
+          "männlicher Sportler", "weibliche Ärztin", "männlicher Arzt"] + ["Hund", "Katze"]
 
 characters_dict = {
-  "man": "Man",
-  "woman": "Woman",
-  "pregnant woman": "Pregnant",
-  "baby": "Stroller",
-  "elderly man": "OldMan",
-  "elderly woman": "OldWoman",
-  "boy": "Boy",
-  "girl": "Girl",
-  "homeless person": "Homeless",
-  "large woman": "LargeWoman",
-  "large man": "LargeMan",
-  "criminal": "Criminal",
-  "male executive": "MaleExecutive",
-  "female executive": "FemaleExecutive",
-  "female athlete": "FemaleAthlete",
-  "male athlete": "MaleAthlete",
-  "female doctor": "FemaleDoctor",
-  "male doctor": "MaleDoctor",
-  "dog": "Dog",
-  "cat": "Cat",
+  "Mann": "Man",
+  "Frau": "Woman",
+  "schwangere Frau": "Pregnant",
+  "Baby": "Stroller",
+  "älterer Mann": "OldMan",
+  "ältere Frau": "OldWoman",
+  "Junge": "Boy",
+  "Mädchen": "Girl",
+  "obdachlose Person": "Homeless",
+  "übergewichtige Frau": "LargeWoman",
+  "übergewichtiger Mann": "LargeMan",
+  "Krimineller": "Criminal",
+  "männlicher Geschäftsführer": "MaleExecutive",
+  "weibliche Geschäftsführerin": "FemaleExecutive",
+  "weibliche Sportlerin": "FemaleAthlete",
+  "männlicher Sportler": "MaleAthlete",
+  "weibliche Ärztin": "FemaleDoctor",
+  "männlicher Arzt": "MaleDoctor",
+  "Hund": "Dog",
+  "Katze": "Cat",
 }
 
 sharedresponse_list = []
 for index, row in df.iterrows():
+  print(index)
   # group 1
   sharedresponse = {}
   sharedresponse['ResponseID'] = "res_{:08}_1".format(index)
@@ -131,6 +116,8 @@ for index, row in df.iterrows():
   sharedresponse['UserCountry3'] = "JPN"
   sharedresponse['ScenarioType'] = ScenarioType_dict[row["scenario_dimension"]]
   sharedresponse['ScenarioTypeStrict'] = ScenarioType_dict[row["scenario_dimension"]]
+  print(AttributeLevel_dict[row["scenario_dimension"]])
+  print([row["scenario_dimension_group_type"][0]])
   sharedresponse['AttributeLevel'] = AttributeLevel_dict[row["scenario_dimension"]][row["scenario_dimension_group_type"][0]]
   sharedresponse['DefaultChoice'] = None
   sharedresponse['NonDefaultChoice'] = None

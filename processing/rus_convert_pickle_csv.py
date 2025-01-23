@@ -1,8 +1,8 @@
 import pandas as pd
 
 
-INPUT_NAME = "./pickles/response_lmstudio-communityPhi-3.1-mini-4k-instruct-GGUFPhi-3.1-mini-4k-instruct-Q4_K_M.gguf_25000_2.pickle"
-OUTPUT_NAME = "response_lmstudio-communityPhi-3.1-mini-4k-instruct-GGUFPhi-3.1-mini-4k-instruct-Q4_K_M.gguf_50k_2.csv"
+INPUT_NAME = "./pickles/ru_words_for_digits_response_lmstudio_communityPhi_3_1_mini_4k_instruct.pickle"
+OUTPUT_NAME = "ru_words_for_digits_response_lmstudio_communityPhi_3_1_mini_4k_instruct.csv"
 
 df = pd.read_pickle(INPUT_NAME)
 
